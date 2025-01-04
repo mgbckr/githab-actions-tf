@@ -7,6 +7,7 @@ def test_tensorflow():
 
     import numpy as np
     import tensorflow as tf
+    print(tf.__version__)
 
     (x_train, y_train) = \
         np.random.random((100, 32, 32, 3)), \
