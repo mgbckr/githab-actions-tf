@@ -1,25 +1,26 @@
-import pytest
-
-from gh_actions_tf.skeleton import fib, main
-
 __author__ = "Martin Becker"
 __copyright__ = "Martin Becker"
 __license__ = "MIT"
 
 
-def test_fib():
-    """API Tests"""
-    assert fib(1) == 1
-    assert fib(2) == 1
-    assert fib(7) == 13
-    with pytest.raises(AssertionError):
-        fib(-10)
+def test_tensorflow():
+
+    import numpy as np
+    import tensorflow as tf
+
+    (x_train, y_train) = np.random.random((100, 32, 32, 3)), np.random.randint(0, 100, (100, 1))
+
+    print("Load model")
+    model = tf.keras.applications.EfficientNetB0(
+        include_top=True,
+        weights=None,
+        input_shape=(32, 32, 3),
+        classes=100,)
+
+    loss_fn = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
+    model.compile(optimizer="adam", loss=loss_fn, metrics=["accuracy"])
+    model.fit(x_train, y_train, epochs=1, batch_size=64)
 
 
-def test_main(capsys):
-    """CLI Tests"""
-    # capsys is a pytest fixture that allows asserts against stdout/stderr
-    # https://docs.pytest.org/en/stable/capture.html
-    main(["7"])
-    captured = capsys.readouterr()
-    assert "The 7-th Fibonacci number is 13" in captured.out
+if __name__ == '__main__':
+    test_tensorflow()
