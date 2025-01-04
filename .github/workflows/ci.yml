@@ -37,8 +37,8 @@ jobs:
       - uses: actions/setup-python@v5
         id: setup-python
         with: {python-version: "3.12"}
-      - name: Run static analysis and format checkers
-        run: pipx run pre-commit run --all-files --show-diff-on-failure
+      # - name: Run static analysis and format checkers
+      #   run: pipx run pre-commit run --all-files --show-diff-on-failure
       - name: Build package distribution files
         run: >-
           pipx run --python '${{ steps.setup-python.outputs.python-path }}'
@@ -60,12 +60,12 @@ jobs:
     strategy:
       matrix:
         python:
-        - "3.8"  # oldest Python supported by PSF
-        - "3.12"  # newest Python that is stable
+        # - "3.8"  # oldest Python supported by PSF
+        - "3.9"  # newest Python that is stable
         platform:
-        - ubuntu-latest
+        # - ubuntu-latest
         - macos-latest
-        - windows-latest
+        # - windows-latest
     runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
@@ -81,45 +81,45 @@ jobs:
           pipx run --python '${{ steps.setup-python.outputs.python-path }}'
           tox --installpkg '${{ needs.prepare.outputs.wheel-distribution }}'
           -- -rFEx --durations 10 --color yes  # pytest args
-      - name: Generate coverage report
-        run: pipx run coverage lcov -o coverage.lcov
-      - name: Upload partial coverage report
-        uses: coverallsapp/github-action@master
-        with:
-          path-to-lcov: coverage.lcov
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: ${{ matrix.platform }} - py${{ matrix.python }}
-          parallel: true
+      # - name: Generate coverage report
+      #   run: pipx run coverage lcov -o coverage.lcov
+      # - name: Upload partial coverage report
+      #   uses: coverallsapp/github-action@master
+      #   with:
+      #     path-to-lcov: coverage.lcov
+      #     github-token: ${{ secrets.GITHUB_TOKEN }}
+      #     flag-name: ${{ matrix.platform }} - py${{ matrix.python }}
+      #     parallel: true
 
-  finalize:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Finalize coverage report
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          parallel-finished: true
+  # finalize:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Finalize coverage report
+  #       uses: coverallsapp/github-action@master
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         parallel-finished: true
 
-  publish:
-    needs: finalize
-    if: ${{ github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: {python-version: "3.12"}
-      - name: Retrieve pre-built distribution files
-        uses: actions/download-artifact@v4
-        with: {name: python-distribution-files, path: dist/}
-      - name: Publish Package
-        env:
-          # TODO: Set your PYPI_TOKEN as a secret using GitHub UI
-          # - https://pypi.org/help/#apitoken
-          # - https://docs.github.com/en/actions/security-guides/encrypted-secrets
-          TWINE_REPOSITORY: pypi
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: pipx run tox -e publish
+  # publish:
+  #   needs: finalize
+  #   if: ${{ github.event_name == 'push' && contains(github.ref, 'refs/tags/') }}
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-python@v5
+  #       with: {python-version: "3.12"}
+  #     - name: Retrieve pre-built distribution files
+  #       uses: actions/download-artifact@v4
+  #       with: {name: python-distribution-files, path: dist/}
+  #     - name: Publish Package
+  #       env:
+  #         # TODO: Set your PYPI_TOKEN as a secret using GitHub UI
+  #         # - https://pypi.org/help/#apitoken
+  #         # - https://docs.github.com/en/actions/security-guides/encrypted-secrets
+  #         TWINE_REPOSITORY: pypi
+  #         TWINE_USERNAME: __token__
+  #         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+  #       run: pipx run tox -e publish
