@@ -3,12 +3,17 @@ __copyright__ = "Martin Becker"
 __license__ = "MIT"
 
 
+from numpy import dtype
+
+
 def test_tensorflow():
 
     import numpy as np
     import tensorflow as tf
 
-    (x_train, y_train) = np.random.random((100, 32, 32, 3)), np.random.randint(0, 100, (100, 1))
+    (x_train, y_train) = \
+        np.random.random((100, 32, 32, 3)), \
+        np.random.randint(0, 100, (100, 1))
 
     print("Load model")
     model = tf.keras.applications.EfficientNetB0(
