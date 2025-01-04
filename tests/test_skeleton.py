@@ -3,9 +3,6 @@ __copyright__ = "Martin Becker"
 __license__ = "MIT"
 
 
-from numpy import dtype
-
-
 def test_tensorflow():
 
     import numpy as np
